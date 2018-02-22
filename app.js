@@ -50,7 +50,7 @@ function watch(username) {
 				process('vote', res[1].voter, res[1]);
 			}
 			else if(res[0] === 'custom_json' && res[1].id === 'follow' &&
-				JSON.parse(res[1].json).following === username) {
+				JSON.parse(res[1].json)[1].following === username) {
 				process('follow', res[1].required_posting_auths, res[1]);
 			}
 		}
