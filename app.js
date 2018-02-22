@@ -58,6 +58,7 @@ function watch(username) {
 		}
 		else {
 			console.error(err);
+			window.location.reload();
 		}
 	});
 }
