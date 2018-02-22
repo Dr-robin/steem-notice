@@ -81,28 +81,20 @@ function makeProfileURL(user) {
 }
 
 function process(type, user, data) {
-	steem.api.getAccounts([user], (err, res) => {
-		let userPic;
-		if(!err) {
-			userPic = JSON.parse(res[0].json_metadata).profile.profile_image;
-		}
-		switch(type) {
-			case 'comment':
-				noti(user + '님이 댓글을 달았어요.', {body: data.body, icon: userPic}, makeCommentURL(data));
-				break;
-			case 'mention':
-				noti(user + '님이 언급했어요.', {body: data.body, icon: userPic},
-					data.parent_author ? makeCommentURL(data) : makeArticleURL(data));
-				break;
-			case 'vote':
-				noti(user + '님이 Upvote 했어요.', {icon: userPic}, makeArticleURL(data));
-				break;
-			case 'follow':
-				noti(user + '님이 팔로우했어요.', {icon: userPic}, makeProfileURL(user));
-		}
-		console.log(data);
-	});
-
+	switch(type) {
+		case 'comment':
+			noti(user + '님이 댓글을 달았어요.', {body: data.body}, makeCommentURL(data));
+			break;
+		case 'mention':
+			noti(user + '님이 언급했어요.', {body: data.body},
+				data.parent_author ? makeCommentURL(data) : makeArticleURL(data));
+			break;
+		case 'vote':
+			noti(user + '님이 Upvote 했어요.', {}, makeArticleURL(data));
+			break;
+		case 'follow':
+			noti(user + '님이 팔로우했어요.', {}, makeProfileURL(user));
+	}
 }
 
 function noti(msg, options, link) {
