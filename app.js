@@ -49,9 +49,11 @@ function watch(username) {
 			else if(res[0] === 'vote' && res[1].author === username) {
 				process('vote', res[1].voter, res[1]);
 			}
-			else if(res[0] === 'custom_json' && res[1].id === 'follow' &&
-				JSON.parse(res[1].json)[1].following === username) {
-				process('follow', res[1].required_posting_auths, res[1]);
+			else if(res[0] === 'custom_json' && res[1].id === 'follow') {
+				let json = JSON.parse(res[1].json);
+				if(json[1].following === username) {
+					process('follow', json[1].follower, res[1]);
+				}
 			}
 		}
 		else {
