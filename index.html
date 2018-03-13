@@ -7,38 +7,50 @@
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 <title>스팀잇 알리미</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<style>
+	#alert-area a {display: block;}
+</style>
 </head>
 <body>
-<h1>스팀잇 알림</h1>
+<h1>스팀잇 알리미</h1>
 <div class="container-fluid">
 	<form id="form">
-		<div class="form-inline form-group mb-2">
-			<label for="username">알림 받을 계정명 (@ 없이)</label>
-			<input type="text" class="form-control" id="username" placeholder="robin-maki">
+		<div class="form-inline">
+			<div class="form-group mb-2">
+				<label for="username">알림 받을 계정명 (@ 없이)</label>
+				<input type="text" class="form-control" id="username" placeholder="robin-maki">
+			</div>
+			<div class="form-group mb-2">
+				<label for="time">알림 유지 초 (0은 무제한)</label>
+				<input type="text" class="form-control" id="alert-time" placeholder="5">
+			</div>
 		</div>
+
 		<div class="row" style="margin-left: 0">
 			<div class="form-check form-check-inline">
-				<input class="form-check-input" type="checkbox" id="alert-comment">
-				<label class="form-check-label" for="alert-comment">댓글 알림</label>
+				<input class="form-check-input" type="checkbox" id="comment">
+				<label class="form-check-label" for="comment">댓글 알림</label>
 			</div>
 			<div class="form-check form-check-inline">
-				<input class="form-check-input" type="checkbox" id="alert-mention">
-				<label class="form-check-label" for="alert-mention">멘션 알림</label>
+				<input class="form-check-input" type="checkbox" id="mention">
+				<label class="form-check-label" for="mention">멘션 알림</label>
 			</div>
 			<div class="form-check form-check-inline">
-				<input class="form-check-input" type="checkbox" id="alert-follow">
-				<label class="form-check-label" for="alert-follow">팔로우 알림</label>
+				<input class="form-check-input" type="checkbox" id="follow">
+				<label class="form-check-label" for="follow">팔로우 알림</label>
 			</div>
 			<div class="form-check form-check-inline">
-				<input class="form-check-input" type="checkbox" id="alert-vote">
-				<label class="form-check-label" for="alert-vote">보팅 알림</label>
+				<input class="form-check-input" type="checkbox" id="vote">
+				<label class="form-check-label" for="vote">보팅 알림</label>
 			</div>
 		</div>
 		<button type="submit" class="btn btn-primary mb-2">저장</button>
 	</form>
 	<p id="message"></p>
-	<p>이 알림 페이지는 켜져 있는 동안 댓글, 언급, 보팅, 팔로우를 감지해서 알림으로 보여줘요.</p>
+	<p>이 알림 페이지는 켜져 있는 동안 댓글, 멘션, 보팅, 팔로우를 감지해서 알림으로 보여줘요.</p>
 	<p><a href="https://steemit.com/@robin-maki" target="_blank">@robin-maki</a>가 제작했어요. 오류나 건의사항이 있다면 알려주세요!</p>
+	<h2>알림 목록</h2>
+	<div id="alert-area"></div>
 </div>
 
 <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
