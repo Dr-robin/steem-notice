@@ -1,4 +1,6 @@
 let steemURL = 'https://steemit.com';
+let settings;
+let successCount = 0;
 
 Notification.requestPermission((status) => {
 	if (Notification.permission !== status) {
@@ -15,6 +17,32 @@ if(localStorage.getItem('username')) {
 }
 else {
 	$('#message').text('계정명을 쓰고 저장 버튼을 눌러주세요!');
+}
+
+try {
+	settings = JSON.parse(localStorage.getItem('settings'));
+	if(!settings) {
+		throw 1;
+	}
+}
+catch(e) {
+	settings = {comment: true, mention: true, follow: true, vote: false, time: 5};
+}
+
+$('#comment').attr('checked', settings.comment).change(changeSettings);
+$('#mention').attr('checked', settings.mention).change(changeSettings);
+$('#follow').attr('checked', settings.follow).change(changeSettings);
+$('#vote').attr('checked', settings.vote).change(changeSettings);
+$('#alert-time').val(settings.time).change(function() {
+	let t = $(this);
+	settings.time = Number(t.val());
+	localStorage.setItem('settings', JSON.stringify(settings));
+});
+
+function changeSettings() {
+	let t = $(this);
+	settings[t.attr('id')] = !settings[t.attr('id')];
+	localStorage.setItem('settings', JSON.stringify(settings));
 }
 
 $('#form').submit(() => {
@@ -36,29 +64,33 @@ function watch(username) {
 	steem.api.streamOperations((err, res) => {
 		if(!err) {
 			if(res[0] === 'comment') {
-				if(res[1].parent_author === username) {
+				if(settings.comment && res[1].parent_author === username) {
 					process('comment', res[1].author, res[1]);
 				}
-				else if(res[1].json_metadata) {
+				else if(settings.mention && res[1].json_metadata) {
 					let metadata = JSON.parse(res[1].json_metadata);
 					if(metadata.users && metadata.users.includes(username)) {
 						process('mention', res[1].author, res[1]);
 					}
 				}
 			}
-			else if(res[0] === 'vote' && res[1].author === username) {
+			else if(settings.vote && res[0] === 'vote' && res[1].author === username && res[1].weight > 0) {
 				process('vote', res[1].voter, res[1]);
 			}
-			else if(res[0] === 'custom_json' && res[1].id === 'follow') {
+			else if(settings.follow && res[0] === 'custom_json' && res[1].id === 'follow') {
 				let json = JSON.parse(res[1].json);
 				if(json[1].following === username) {
 					process('follow', json[1].follower, res[1]);
 				}
 			}
+			successCount++;
 		}
 		else {
 			console.error(err);
-			window.location.reload();
+			if(successCount > 1) {
+				successCount = 0;
+				watch(username);
+			}
 		}
 	});
 }
@@ -89,11 +121,11 @@ function process(type, user, data) {
 			noti(user + '님이 댓글을 달았어요.', {body: data.body}, makeCommentURL(data));
 			break;
 		case 'mention':
-			noti(user + '님이 언급했어요.', {body: data.body},
+			noti(user + '님이 멘션했어요.', {body: data.body},
 				data.parent_author ? makeCommentURL(data) : makeArticleURL(data));
 			break;
 		case 'vote':
-			noti(user + '님이 Upvote 했어요.', {}, makeArticleURL(data));
+			noti(user + '님이 업보팅 했어요.', {}, makeArticleURL(data));
 			break;
 		case 'follow':
 			noti(user + '님이 팔로우했어요.', {}, makeProfileURL(user));
@@ -103,11 +135,18 @@ function process(type, user, data) {
 function noti(msg, options, link) {
 	if(Notification && Notification.permission === "granted") {
 		let n = new Notification(msg, options);
+		let timeOut;
 		n.onshow = () => {
-			setTimeout(n.close, 5000);
+			if(settings.time) {
+				timeOut = setTimeout(n.close, settings.time * 1000);
+			}
 		};
 		n.onclick = () => {
 			window.open(link, '_blank');
+			n.close();
+			clearTimeout(timeOut);
 		};
 	}
+	$('#alert-area').append('<a href="' + link + '" target="_blank">' + new Date().toLocaleString() +
+		' ' + msg + '</a>');
 }
